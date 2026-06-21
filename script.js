@@ -1,3 +1,35 @@
+
+
+// Mobile menu
+(function(){
+  document.querySelectorAll('.navbar').forEach(navbar => {
+    if (navbar.querySelector('.menu-toggle')) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'menu-toggle';
+    btn.setAttribute('aria-label', 'Open menu');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.innerHTML = '<span>☰</span>';
+    const navBtn = navbar.querySelector('.navbtn');
+    if (navBtn) navbar.insertBefore(btn, navBtn);
+    else navbar.appendChild(btn);
+
+    btn.addEventListener('click', () => {
+      const isOpen = navbar.classList.toggle('nav-open');
+      btn.setAttribute('aria-expanded', String(isOpen));
+      btn.innerHTML = isOpen ? '<span>×</span>' : '<span>☰</span>';
+    });
+
+    navbar.querySelectorAll('nav a').forEach(link => {
+      link.addEventListener('click', () => {
+        navbar.classList.remove('nav-open');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.innerHTML = '<span>☰</span>';
+      });
+    });
+  });
+})();
+
 const items = document.querySelectorAll('.reveal');
 if ('IntersectionObserver' in window) {
   const obs = new IntersectionObserver(entries => {
