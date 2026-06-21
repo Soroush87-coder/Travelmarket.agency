@@ -1,0 +1,78 @@
+// Google Apps Script Code
+// Paste this code inside Extensions → Apps Script of your private Google Sheet.
+// Replace PRIVATE_RECEIVER_EMAIL with your private email address.
+
+const PRIVATE_RECEIVER_EMAIL = 'PRIVATE_RECEIVER_EMAIL';
+const SHEET_NAME = 'Leads';
+
+function doPost(e) {
+  try {
+    const payload = JSON.parse(e.postData.contents || '{}');
+    const fields = payload.fields || {};
+    const files = payload.files || [];
+
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) sheet = ss.insertSheet(SHEET_NAME);
+
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(['Date', 'Page', 'Full Name', 'WhatsApp', 'Email', 'Nationality', 'Program / Service', 'All Details', 'Page URL']);
+    }
+
+    const details = Object.keys(fields).map(k => `${k}: ${fields[k]}`).join('\n');
+    sheet.appendRow([
+      new Date(),
+      payload.page || '',
+      fields.full_name || fields.name || '',
+      fields.whatsapp || '',
+      fields.email || '',
+      fields.nationality || '',
+      fields.service_page || payload.page || '',
+      details,
+      payload.url || ''
+    ]);
+
+    const attachments = [];
+    files.forEach(file => {
+      if (!file || !file.data || !file.name) return;
+      // Keep attachments reasonably small for email delivery.
+      if (file.size && Number(file.size) > 8000000) return;
+      const bytes = Utilities.base64Decode(file.data);
+      attachments.push(Utilities.newBlob(bytes, file.type || 'application/octet-stream', file.name));
+    });
+
+    const htmlBody = `
+      <div style="font-family:Arial,sans-serif;line-height:1.7;color:#111827">
+        <h2>New Travel Market Lead</h2>
+        <p><b>Page:</b> ${escapeHtml(payload.page || '')}</p>
+        <p><b>URL:</b> ${escapeHtml(payload.url || '')}</p>
+        <table cellpadding="8" cellspacing="0" border="1" style="border-collapse:collapse;width:100%;border-color:#e5e7eb">
+          ${Object.keys(fields).map(k => `<tr><td><b>${escapeHtml(k)}</b></td><td>${escapeHtml(fields[k])}</td></tr>`).join('')}
+        </table>
+      </div>`;
+
+    MailApp.sendEmail({
+      to: PRIVATE_RECEIVER_EMAIL,
+      subject: `Travel Market Lead - ${payload.page || 'Website Form'}`,
+      htmlBody,
+      attachments
+    });
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: true }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, error: String(err) }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function escapeHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
