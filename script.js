@@ -15,7 +15,7 @@ if ('IntersectionObserver' in window) {
 
 // IMPORTANT: paste your Google Apps Script Web App URL here after deployment.
 // The email address stays private inside Google Apps Script, not inside GitHub.
-const GOOGLE_SCRIPT_URL = 'PASTE_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyE-ppkpO3Emd6bPNhDQ7a_JfnYkGSMclO4ym5sYjYPH9_odFIrhAfkS0pGcN5zrjeu/exec';
 
 function getThankYouUrl() {
   const isProgramPage = window.location.pathname.includes('/programs/');
