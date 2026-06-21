@@ -79,7 +79,7 @@ function setFormStatus(form, type, message) {
   box.textContent = message;
 }
 
-document.querySelectorAll('form[data-gas-form]').forEach(form => {
+document.querySelectorAll('form[data-gas-form], form.smart-form, section.request form').forEach(form => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 

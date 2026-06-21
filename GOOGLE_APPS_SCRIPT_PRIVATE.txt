@@ -1,70 +1,51 @@
-// Google Apps Script Code
-// Paste this code inside Extensions → Apps Script of your private Google Sheet.
-// Replace PRIVATE_RECEIVER_EMAIL with your private email address.
-
-const PRIVATE_RECEIVER_EMAIL = 'PRIVATE_RECEIVER_EMAIL';
-const SHEET_NAME = 'Leads';
-
 function doPost(e) {
   try {
-    const payload = JSON.parse(e.postData.contents || '{}');
-    const fields = payload.fields || {};
-    const files = payload.files || [];
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Leads') || ss.getSheetByName('Sheet1') || ss.getSheets()[0];
 
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    let sheet = ss.getSheetByName(SHEET_NAME);
-    if (!sheet) sheet = ss.insertSheet(SHEET_NAME);
-
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow(['Date', 'Page', 'Full Name', 'WhatsApp', 'Email', 'Nationality', 'Program / Service', 'All Details', 'Page URL']);
+    var data = {};
+    if (e && e.postData && e.postData.contents) {
+      data = JSON.parse(e.postData.contents);
     }
 
-    const details = Object.keys(fields).map(k => `${k}: ${fields[k]}`).join('\n');
+    var fields = data.fields || {};
+    var files = data.files || [];
+
+    var headers = ['Date','Source','Page','URL','Name','WhatsApp','Email','Nationality','Program','Family','Notes','All Fields','Files'];
+    if (sheet.getLastRow() === 0) sheet.appendRow(headers);
+
+    var allFields = Object.keys(fields).map(function(k){ return k + ': ' + fields[k]; }).join('\n');
+    var fileList = files.map(function(f){ return f.name + ' (' + f.type + ', ' + f.size + ' bytes)'; }).join('\n');
+
     sheet.appendRow([
       new Date(),
-      payload.page || '',
-      fields.full_name || fields.name || '',
-      fields.whatsapp || '',
+      data.source || 'Travel Market Website',
+      data.page || '',
+      data.url || '',
+      fields.name || fields.full_name || fields.fullName || '',
+      fields.whatsapp || fields.phone || fields.mobile || '',
       fields.email || '',
       fields.nationality || '',
-      fields.service_page || payload.page || '',
-      details,
-      payload.url || ''
+      fields.program || fields.visa_type || '',
+      fields.family || fields.family_members || '',
+      fields.notes || fields.message || '',
+      allFields,
+      fileList
     ]);
 
-    const attachments = [];
-    files.forEach(file => {
-      if (!file || !file.data || !file.name) return;
-      // Keep attachments reasonably small for email delivery.
-      if (file.size && Number(file.size) > 8000000) return;
-      const bytes = Utilities.base64Decode(file.data);
-      attachments.push(Utilities.newBlob(bytes, file.type || 'application/octet-stream', file.name));
-    });
-
-    const htmlBody = `
-      <div style="font-family:Arial,sans-serif;line-height:1.7;color:#111827">
-        <h2>New Travel Market Lead</h2>
-        <p><b>Page:</b> ${escapeHtml(payload.page || '')}</p>
-        <p><b>URL:</b> ${escapeHtml(payload.url || '')}</p>
-        <table cellpadding="8" cellspacing="0" border="1" style="border-collapse:collapse;width:100%;border-color:#e5e7eb">
-          ${Object.keys(fields).map(k => `<tr><td><b>${escapeHtml(k)}</b></td><td>${escapeHtml(fields[k])}</td></tr>`).join('')}
-        </table>
-      </div>`;
-
     MailApp.sendEmail({
-      to: PRIVATE_RECEIVER_EMAIL,
-      subject: `Travel Market Lead - ${payload.page || 'Website Form'}`,
-      htmlBody,
-      attachments
+      to: 'dynamic.range87@gmail.com',
+      subject: 'New Travel Market Lead - ' + (data.page || 'Website Form'),
+      htmlBody: '<h2>New Lead Received</h2>' +
+        '<p><b>Page:</b> ' + escapeHtml(data.page || '') + '</p>' +
+        '<p><b>URL:</b> ' + escapeHtml(data.url || '') + '</p>' +
+        '<pre style="font-family:Arial;white-space:pre-wrap">' + escapeHtml(allFields) + '</pre>' +
+        (fileList ? '<h3>Uploaded files</h3><pre>' + escapeHtml(fileList) + '</pre>' : '')
     });
 
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: true }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({ success: true })).setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, error: String(err) }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({ success: false, error: String(err) })).setMimeType(ContentService.MimeType.JSON);
   }
 }
 
