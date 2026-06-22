@@ -55,3 +55,21 @@ button[disabled],input[type="submit"][disabled]{opacity:.65;cursor:not-allowed}
 .fa .assess-form input,.fa .assess-form textarea{text-align:right}
 .fa .subhead{color:#a95600}
 @media(max-width:760px){.frow{grid-template-columns:1fr}.fblock{padding:22px}.directory-grid.two{grid-template-columns:1fr}}
+
+/* ===== Wizard (multi-step assessment) ===== */
+.wiz-progress{margin:2px 0 20px}
+.wiz-bar{height:8px;border-radius:999px;background:rgba(20,33,61,.08);overflow:hidden;direction:ltr}
+.wiz-bar i{display:block;height:100%;width:8%;border-radius:999px;background:linear-gradient(90deg,#ff9f43,#5ce1e6);transition:width .45s cubic-bezier(.2,.8,.2,1)}
+.wiz-meta{display:flex;justify-content:space-between;gap:12px;margin-top:11px;font-size:13px}
+.wiz-step{font-weight:900;color:#a95600}
+.wiz-title{color:#46566f;font-weight:800}
+.wiz-nav{display:flex;gap:12px;justify-content:space-between;margin-top:18px}
+.wiz-nav .btn{min-width:150px;justify-content:center}
+.assess-form.is-wizard .fblock{display:none}
+.assess-form.is-wizard .fblock.active{display:block;animation:wizfade .35s ease}
+@keyframes wizfade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.fa .wiz-meta,.fa .wiz-nav{flex-direction:row-reverse}
+.fa .wiz-bar{transform:scaleX(-1)}
+@media(max-width:760px){.wiz-nav .btn{min-width:0;flex:1}}
+
+.wiz-nav .btn[hidden]{display:none}
