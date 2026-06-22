@@ -17,3 +17,9 @@
   .navbar .navbtn{display:none}
   .navbar nav{top:68px;left:4vw;right:4vw}
 }
+
+/* Modern service & badge icons */
+.svc-ico{display:grid;place-items:center;width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#ff9f43,#5ce1e6);box-shadow:0 14px 30px rgba(255,159,67,.24);margin-bottom:6px}
+.svc-ico svg{width:26px;height:26px}
+.badge{display:inline-flex;align-items:center;gap:9px}
+.badge svg{width:18px;height:18px;flex:0 0 auto}
