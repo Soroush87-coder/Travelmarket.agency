@@ -31,3 +31,6 @@ const GOOGLE_SCRIPT_URL = 'PASTE_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
 - ایمیل هم برای شما ارسال می‌شود.
 
 نکته: اگر بعداً Apps Script را تغییر دادید، باید دوباره Deploy → Manage deployments → Edit → New version بزنید.
+
+
+این نسخه مخصوص سایت اصلی است و بخش Immigration/Form از آن حذف شده است. فرم‌ها باید جداگانه روی form.travelmarket.agency Deploy شوند.
